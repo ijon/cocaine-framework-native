@@ -33,7 +33,7 @@ public:
     void
     run();
 
-    template<class AppT, typename... Args>
+    template<class App, typename... Args>
     void
     add(const std::string& name,
         Args&&... args);
@@ -98,16 +98,13 @@ worker_t::send(Args&&... args) {
     m_channel->wr->write<Event>(std::forward<Args>(args)...);
 }
 
-template<class AppT, typename... Args>
+template<class App, typename... Args>
 void
 worker_t::add(const std::string& name,
               Args&&... args)
 {
     if (name == m_app_name) {
-        m_application.reset(new AppT(name,
-                                     m_service_manager,
-                                     std::forward<Args>(args)...));
-        m_application->initialize();
+        m_application = (new App(name, m_service_manager, std::forward<Args>(args)...))->take_control();
     }
 }
 
